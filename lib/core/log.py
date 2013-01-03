@@ -36,3 +36,28 @@ LOGGER.setLevel(logging.WARN)
 
 # to handle logger with the RESTful API
 LOGGER_OUTPUT = StringIO.StringIO()
+
+# Logger recorder object, which keeps the log structure
+class LogRecorder (logging.StreamHandler):
+    """
+    Logging handler class which only records CUSTOM_LOGGING.PAYLOAD entries
+    to a global list.
+    """
+    loghist = []
+
+    def emit(self, record):
+        """
+        Simply record the emitted events.
+        """
+        self.loghist.append ({'levelno':record.levelno,
+                              'text':record.message % record.args if record.args else record.message,
+                              'id':len(self.loghist)})
+
+    def get_logs (self, start = None, end = None):
+        """
+        Retrieve the recorded events. Optional slicing via start/end.
+        """
+        return self.loghist[slice(start, end)]
+
+LOG_RECORDER = LogRecorder()
+LOGGER.addHandler(LOG_RECORDER)

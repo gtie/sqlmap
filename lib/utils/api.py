@@ -38,6 +38,7 @@ from lib.core.defaults import _defaults
 from lib.core.log import FORMATTER
 from lib.core.log import LOGGER_HANDLER
 from lib.core.log import LOGGER_OUTPUT
+from lib.core.log import LOG_RECORDER
 from lib.core.exception import SqlmapMissingDependence
 from lib.core.optiondict import optDict
 from lib.core.option import init
@@ -349,6 +350,18 @@ def scan_log(taskid):
     LOGGER_OUTPUT.truncate(0)
 
     return jsonize({"log": output})
+
+# Function to handle scans' logs
+@get("/scan/<taskid>/logstruct")
+def scan_logstruct(taskid):
+    """
+    Generic function to return the last N lines of structured output
+    """
+    if taskid not in tasks:
+        abort(500, "Invalid task ID")
+
+    output = LOG_RECORDER.get_logs(request.GET.get('start'),request.GET.get('end'))
+    return jsonize({"logstruct": output})
 
 # Function to handle files inside the output directory
 @get("/download/<taskid>/<target>/<filename:path>")
